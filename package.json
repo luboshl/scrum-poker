@@ -1,7 +1,7 @@
 {
-  "name": "scrum-pocker",
+  "name": "scrum-poker",
   "version": "0.1.1",
-  "description": "Real-time Scrum Pocker application for agile teams",
+  "description": "Real-time Scrum Poker application for agile teams",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

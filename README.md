@@ -1,8 +1,8 @@
-# Scrum Pocker
+# Scrum Poker
 
 > **Note**: This entire application was generated using Claude AI. The code may contain errors, inefficiencies, or unnecessary elements. This project serves as an experiment to explore the capabilities of AI-assisted development. Use at your own discretion and feel free to improve upon it.
 
-Real-time web application for Scrum Pocker (or Planning Pocker) designed for agile teams. It allows team members to estimate task complexity in real time.
+Real-time web application for Scrum Poker (or Planning Poker) designed for agile teams. It allows team members to estimate task complexity in real time.
 
 ## Experimental Project
 
@@ -31,7 +31,7 @@ This project is primarily an experiment to test the capabilities of AI in genera
 1. Clone the repository:
 ```
 git clone [repository-URL]
-cd scrum-pocker
+cd scrum-poker
 ```
 
 2. Install dependencies:
