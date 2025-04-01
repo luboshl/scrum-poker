@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scrum Pocker</title>
+    <title>Scrum Poker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -234,19 +234,32 @@
             z-index: 1000;
             pointer-events: none;
         }
+        
+        .login-room-id {
+            font-family: monospace;
+            background-color: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .small-text {
+            font-size: 0.8em;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Scrum Pocker</h1>
+        <h1>Scrum Poker</h1>
         
         <!-- Login form -->
         <div id="loginContainer" class="login-container">
-            <h2 id="loginHeading">Login</h2>
+            <h2 id="loginHeading">Create new room</h2>
             <div id="loginForm">
                 <input type="text" id="nameInput" placeholder="Enter your name" autofocus>
                 <p id="loginError" class="error hidden">Please enter your name</p>
-                <button type="button" id="loginBtn">Join voting</button>
+                <button type="button" id="loginBtn">Join</button>
             </div>
         </div>
         
@@ -444,13 +457,7 @@
                 // If a room parameter is present, update the heading
                 const loginHeading = document.getElementById('loginHeading');
                 if (loginHeading) {
-                    loginHeading.textContent = `Join room ${roomId}`;
-                }
-            } else {
-                // If no room parameter is present, show "Create new room"
-                const loginHeading = document.getElementById('loginHeading');
-                if (loginHeading) {
-                    loginHeading.textContent = 'Create new room';
+                    loginHeading.innerHTML = `<span class="small-text">Join room</span> <span class="login-room-id">${roomId}</span>`;
                 }
             }
         }
@@ -795,7 +802,7 @@
             
             // Set page title based on room ID
             if (state.currentRoom) {
-                document.title = `Scrum Pocker - Room ${state.currentRoom}`;
+                document.title = `Scrum Poker - Room ${state.currentRoom}`;
             }
             
             // If the page loads with room parameters, send heartbeat
