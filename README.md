@@ -8,6 +8,10 @@ Real-time web application for Scrum Poker (or Planning Poker) designed for agile
 
 This project is primarily an experiment to test the capabilities of AI in generating functional web applications. While the application works as described, it may not follow all best practices or optimal implementation patterns.
 
+## Hosting
+
+Application is hosted in [Railway](https://railway.com). You can run the app at https://scrum-poker.up.railway.app/.
+
 ## Features
 
 - Create and join sessions using room ID
