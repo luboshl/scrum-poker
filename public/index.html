@@ -242,7 +242,7 @@
         
         <!-- Login form -->
         <div id="loginContainer" class="login-container">
-            <h2>Login</h2>
+            <h2 id="loginHeading">Login</h2>
             <div id="loginForm">
                 <input type="text" id="nameInput" placeholder="Enter your name" autofocus>
                 <p id="loginError" class="error hidden">Please enter your name</p>
@@ -441,6 +441,17 @@
             const roomId = urlParams.get('room');
             if (roomId) {
                 state.currentRoom = roomId;
+                // If a room parameter is present, update the heading
+                const loginHeading = document.getElementById('loginHeading');
+                if (loginHeading) {
+                    loginHeading.textContent = `Join room ${roomId}`;
+                }
+            } else {
+                // If no room parameter is present, show "Create new room"
+                const loginHeading = document.getElementById('loginHeading');
+                if (loginHeading) {
+                    loginHeading.textContent = 'Create new room';
+                }
             }
         }
         
@@ -781,6 +792,11 @@
             
             // Update end voting button state
             updateEndVotingButton();
+            
+            // Set page title based on room ID
+            if (state.currentRoom) {
+                document.title = `Scrum Pocker - Room ${state.currentRoom}`;
+            }
             
             // If the page loads with room parameters, send heartbeat
             if (state.currentRoom && state.connected) {
