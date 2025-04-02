@@ -158,8 +158,8 @@ io.on('connection', (socket) => {
           const heartbeatKey = `${currentRoom}:${user.name}`;
           const lastHeartbeat = heartbeats.get(heartbeatKey);
           
-          // If last heartbeat is older than 10 seconds, mark user as inactive
-          if (lastHeartbeat && now - lastHeartbeat > 10000) {
+          // If last heartbeat is older than 10 minutes, mark user as inactive
+          if (lastHeartbeat && now - lastHeartbeat > 600000) { // 10 minutes in milliseconds
             if (user.active) {
               user.active = false;
               roomUpdated = true;
