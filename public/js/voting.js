@@ -20,12 +20,10 @@ function updateVotingProgress() {
     const progressText = document.getElementById('progressText');
     progressText.textContent = `${votedCount} out of ${totalVoters} users have voted`;
     
-    // Change color based on percentage
-    if (percentage < 33) {
-        progressBar.style.backgroundColor = '#f44336'; // red for less than 33%
-    } else if (percentage < 66) {
-        progressBar.style.backgroundColor = '#ff9800'; // orange for 33-66%
+    // Change color - only green for 100%, orange for all other values
+    if (percentage === 100) {
+        progressBar.style.backgroundColor = '#4CAF50'; // green for 100%
     } else {
-        progressBar.style.backgroundColor = '#4CAF50'; // green for more than 66%
+        progressBar.style.backgroundColor = '#ff9800'; // orange for everything else
     }
 }
