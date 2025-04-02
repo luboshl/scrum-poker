@@ -22,7 +22,7 @@
     <meta name="twitter:description" content="Real-time web application for Scrum Pocker designed for agile teams.">
     <meta name="twitter:image" content="https://scrum-poker.up.railway.app/scrum-poker.png">
     
-        <title>Scrum Poker</title>
+    <title>Scrum Poker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -357,7 +357,8 @@
             currentRoom: null,
             users: [],
             votingEnded: false,
-            connected: false
+            connected: false,
+            observerMode: false
         };
         
         // Setting heartbeat interval for activity checking
@@ -659,9 +660,14 @@
             
             // Show statistics only if voting has ended
             if (state.votingEnded) {
+                // Disable voting buttons when voting has ended
+                document.querySelectorAll('.vote-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+                
                 const votes = state.users
                     .filter(user => user.vote !== null && user.vote !== '?')
-                    .map(user => typeof user.vote === 'number' ? user.vote : parseInt(user.vote, 10))
+                    .map(user => typeof user.vote === 'number' ? user.vote : parseFloat(user.vote))
                     .filter(vote => !isNaN(vote));
                 
                 if (votes.length > 0) {
@@ -678,7 +684,7 @@
                     // Average
                     const sum = votes.reduce((acc, vote) => acc + vote, 0);
                     const average = sum / votes.length;
-                    avgVote.textContent = average.toFixed(1);
+                    avgVote.textContent = average.toString(); // Don't round
                     
                     // Median
                     const sortedVotes = [...votes].sort((a, b) => a - b);
@@ -686,7 +692,7 @@
                     const median = sortedVotes.length % 2 === 0
                         ? (sortedVotes[middle - 1] + sortedVotes[middle]) / 2
                         : sortedVotes[middle];
-                    medianVote.textContent = median;
+                    medianVote.textContent = median.toString(); // Don't round
                     
                     // Min and Max with people
                     const minValue = Math.min(...votes);
@@ -694,16 +700,16 @@
                     
                     // Get names of users with min and max values
                     const usersWithMin = state.users
-                        .filter(user => user.vote === minValue || parseInt(user.vote, 10) === minValue)
+                        .filter(user => parseFloat(user.vote) === minValue)
                         .map(user => user.name);
                     
                     const usersWithMax = state.users
-                        .filter(user => user.vote === maxValue || parseInt(user.vote, 10) === maxValue)
+                        .filter(user => parseFloat(user.vote) === maxValue)
                         .map(user => user.name);
                     
                     // Basic display of min and max values
-                    minVote.textContent = minValue;
-                    maxVote.textContent = maxValue;
+                    minVote.textContent = minValue.toString(); // Don't round
+                    maxVote.textContent = maxValue.toString(); // Don't round
                     
                     // Add names if values differ from average
                     if (minValue < average && usersWithMin.length > 0) {
@@ -720,6 +726,13 @@
                     votingStats.classList.add('hidden');
                 }
             } else {
+                // Re-enable voting buttons when starting a new vote
+                if (!state.observerMode) {
+                    document.querySelectorAll('.vote-btn').forEach(btn => {
+                        btn.disabled = false;
+                    });
+                }
+                
                 // Hide statistics if voting is not ended
                 votingStats.classList.add('hidden');
             }
