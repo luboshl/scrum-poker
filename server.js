@@ -139,6 +139,64 @@ io.on('connection', (socket) => {
     console.log(`Voting in room ${currentRoom} has been reset`);
   });
 
+  // Remove user by name (by other user)
+  socket.on('removeUser', (userToRemove) => {
+    if (!currentRoom || !userName) return;
+
+    const roomData = rooms.get(currentRoom);
+    if (roomData) {
+      // Find the user to remove
+      const userIndex = roomData.users.findIndex(u => u.name === userToRemove);
+      
+      if (userIndex !== -1) {
+        // Make sure the person initiating the removal is not trying to remove themselves
+        if (userToRemove === userName) {
+          socket.emit('userRemoved', {
+            status: 'error',
+            userName: userToRemove,
+            message: 'You cannot remove yourself from the room'
+          });
+          return;
+        }
+        
+        // Remove user from room
+        const removedUser = roomData.users.splice(userIndex, 1)[0];
+        
+        // Clean up user's heartbeat
+        heartbeats.delete(`${currentRoom}:${userToRemove}`);
+        
+        // Notify clients
+        io.to(currentRoom).emit('roomUpdate', {
+          users: roomData.users,
+          votingEnded: roomData.votingEnded
+        });
+        
+        // Send confirmation to the client
+        socket.emit('userRemoved', {
+          status: 'success',
+          userName: userToRemove
+        });
+        
+        console.log(`User ${userToRemove} was removed from room ${currentRoom} by ${userName}`);
+        
+        // Notify the removed user if they are still connected
+        const socketToNotify = io.sockets.sockets.get(removedUser.id);
+        if (socketToNotify) {
+          socketToNotify.emit('forcedDisconnect', {
+            message: `You were removed from room ${currentRoom} by another user`
+          });
+          socketToNotify.leave(currentRoom);
+        }
+      } else {
+        socket.emit('userRemoved', {
+          status: 'error',
+          userName: userToRemove,
+          message: 'User not found'
+        });
+      }
+    }
+  });
+
   // Heartbeat - check that user is still active
   socket.on('heartbeat', () => {
     if (currentRoom && userName) {

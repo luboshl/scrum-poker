@@ -266,6 +266,20 @@
             font-size: 0.8em;
             font-weight: normal;
         }
+        
+        /* Styl pro tlačítko odstranění uživatele */
+        .remove-user {
+            color: #f44336;
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 5px;
+            border-radius: 3px;
+        }
+
+        .remove-user:hover {
+            background-color: #ffebee;
+        }
     </style>
 </head>
 <body>
@@ -420,6 +434,36 @@
         // Listen for resetVoting event from server
         socket.on('resetVoting', () => {
             // Reset selected button for all users
+            document.querySelectorAll('.vote-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        });
+        
+        // User removed event
+        socket.on('userRemoved', (data) => {
+            if (data.status === 'success') {
+                console.log(`User ${data.userName} was removed from the room`);
+            } else {
+                console.error(`Failed to remove user: ${data.message}`);
+            }
+        });
+        
+        // Forced disconnect event (when user is removed by another user)
+        socket.on('forcedDisconnect', (data) => {
+            // User was removed from the room by another user
+            alert(data.message);
+            
+            // Reset state
+            state.currentUser = null;
+            state.currentRoom = null;
+            state.users = [];
+            state.votingEnded = false;
+            
+            // Update UI - show login screen again
+            loginContainer.classList.remove('hidden');
+            votingContainer.classList.add('hidden');
+            
+            // Clean up any selected buttons
             document.querySelectorAll('.vote-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
@@ -645,8 +689,30 @@
                     listItem.classList.add('pending-vote');
                 }
                 
-                // Set text
-                listItem.textContent = itemText;
+                // Create a span for the user info
+                const userInfoSpan = document.createElement('span');
+                userInfoSpan.textContent = itemText;
+                
+                // Add to list item
+                listItem.appendChild(userInfoSpan);
+                
+                // Add remove button (×) for all users except current user
+                if (!isCurrentUser) {
+                    const removeButton = document.createElement('span');
+                    removeButton.textContent = '×';
+                    removeButton.className = 'remove-user';
+                    removeButton.title = `Remove ${user.name}`;
+                    
+                    // Add click event listener
+                    removeButton.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevent event bubbling
+                        if (confirm(`Are you sure you want to remove ${user.name}?`)) {
+                            socket.emit('removeUser', user.name);
+                        }
+                    });
+                    
+                    listItem.appendChild(removeButton);
+                }
                 
                 // Add to list
                 usersListContainer.appendChild(listItem);
@@ -851,6 +917,3 @@
                 }
             });
         });
-    </script>
-</body>
-</html>
