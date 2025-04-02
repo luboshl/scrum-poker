@@ -711,6 +711,9 @@
             // Create a copy of the user list
             let sortedUsers = [...state.users];
             
+            // Filter out observers - they should not be in the voting list
+            sortedUsers = sortedUsers.filter(user => !user.isObserver);
+            
             // Sort users - current user first, others alphabetically
             sortedUsers.sort((a, b) => {
                 if (a.name === state.currentUser) return -1;
@@ -737,11 +740,6 @@
                     itemText += ' (current user)';
                 }
                 
-                // Add observer status if applicable
-                if (user.isObserver) {
-                    itemText += ' (observer)';
-                }
-                
                 // Voting information
                 if (user.vote !== null) {
                     if (state.votingEnded) {
@@ -755,8 +753,8 @@
                         itemText += ': ✅ Voted';
                         listItem.classList.add('pending-vote');
                     }
-                } else if (!user.isObserver) {
-                    // Not voted yet and not an observer
+                } else {
+                    // Not voted yet
                     itemText += ': ⌛ Not voted yet';
                     listItem.classList.add('pending-vote');
                 }
@@ -803,8 +801,9 @@
                     btn.disabled = true;
                 });
                 
+                // Filter out observers and get only active voters' votes
                 const votes = state.users
-                    .filter(user => user.vote !== null && user.vote !== '?')
+                    .filter(user => !user.isObserver && user.vote !== null && user.vote !== '?')
                     .map(user => typeof user.vote === 'number' ? user.vote : parseFloat(user.vote))
                     .filter(vote => !isNaN(vote));
                 
@@ -836,13 +835,13 @@
                     const minValue = Math.min(...votes);
                     const maxValue = Math.max(...votes);
                     
-                    // Get names of users with min and max values
+                    // Get names of users with min and max values (excluding observers)
                     const usersWithMin = state.users
-                        .filter(user => parseFloat(user.vote) === minValue)
+                        .filter(user => !user.isObserver && parseFloat(user.vote) === minValue)
                         .map(user => user.name);
                     
                     const usersWithMax = state.users
-                        .filter(user => parseFloat(user.vote) === maxValue)
+                        .filter(user => !user.isObserver && parseFloat(user.vote) === maxValue)
                         .map(user => user.name);
                     
                     // Basic display of min and max values
