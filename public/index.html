@@ -280,6 +280,33 @@
         .remove-user:hover {
             background-color: #ffebee;
         }
+        
+        /* Styl pro tlačítka přihlášení */
+        .login-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-buttons button {
+            flex: 1;
+        }
+        
+        #loginAsObserverBtn {
+            background-color: #607D8B;
+        }
+        
+        #loginAsObserverBtn:hover {
+            background-color: #455A64;
+        }
+        
+        .observer-badge {
+            background-color: #607D8B;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -292,7 +319,10 @@
             <div id="loginForm">
                 <input type="text" id="nameInput" placeholder="Enter your name" autofocus>
                 <p id="loginError" class="error hidden">Please enter your name</p>
-                <button type="button" id="loginBtn">Join</button>
+                <div class="login-buttons">
+                    <button type="button" id="loginBtn">Join</button>
+                    <button type="button" id="loginAsObserverBtn">Join as Observer</button>
+                </div>
             </div>
         </div>
         
@@ -303,7 +333,7 @@
                 <button id="copyLinkBtn" class="copy-btn">Copy link</button>
             </div>
             
-            <p>Logged in as: <span id="currentUserName"></span></p>
+            <p>Logged in as: <span id="currentUserName"></span><span id="observerBadge" class="observer-badge hidden">Observer</span></p>
             
             <div id="votingButtons" class="voting-buttons">
                 <h3>Choose your estimate:</h3>
@@ -384,10 +414,12 @@
         const votingContainer = document.getElementById('votingContainer');
         const nameInput = document.getElementById('nameInput');
         const loginBtn = document.getElementById('loginBtn');
+        const loginAsObserverBtn = document.getElementById('loginAsObserverBtn');
         const loginError = document.getElementById('loginError');
         const roomIdDisplay = document.getElementById('roomIdDisplay');
         const copyLinkBtn = document.getElementById('copyLinkBtn');
         const currentUserName = document.getElementById('currentUserName');
+        const observerBadge = document.getElementById('observerBadge');
         const votingButtons = document.getElementById('votingButtons');
         const voteError = document.getElementById('voteError');
         const endVotingBtn = document.getElementById('endVotingBtn');
@@ -429,6 +461,16 @@
             // Update user name if server changed it due to duplication
             state.currentUser = data.name;
             currentUserName.textContent = data.name;
+            
+            // Update observer badge if needed
+            if (data.isObserver) {
+                state.observerMode = true;
+                observerBadge.classList.remove('hidden');
+                disableVotingButtons();
+            } else {
+                state.observerMode = false;
+                observerBadge.classList.add('hidden');
+            }
         });
         
         // Listen for resetVoting event from server
@@ -470,14 +512,15 @@
         });
         
         // Add event listeners
-        loginBtn.addEventListener('click', handleLogin);
+        loginBtn.addEventListener('click', () => handleLogin(false));
+        loginAsObserverBtn.addEventListener('click', () => handleLogin(true));
         
         // Add keypress listener for Enter key in login
         nameInput.addEventListener('keypress', function(e) {
             // If Enter key was pressed (code 13)
             if (e.key === 'Enter' || e.keyCode === 13) {
                 e.preventDefault(); // Prevent default action (form submission)
-                handleLogin();      // Call login function
+                handleLogin(false);  // Call login function (not as observer)
             }
         });
         
@@ -488,6 +531,11 @@
         // Add event listeners for value buttons
         document.querySelectorAll('.vote-btn').forEach(button => {
             button.addEventListener('click', function() {
+                // If in observer mode, don't allow voting
+                if (state.observerMode) {
+                    return;
+                }
+                
                 // Remove selected class from all buttons
                 document.querySelectorAll('.vote-btn').forEach(btn => {
                     btn.classList.remove('selected');
@@ -512,6 +560,14 @@
             });
         });
         
+        // Function to disable voting buttons for observers
+        function disableVotingButtons() {
+            document.querySelectorAll('.vote-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.title = "Observers cannot vote";
+            });
+        }
+        
         // Check URL parameters for connection to a room
         function checkUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -533,11 +589,13 @@
                 statusIndicator.classList.remove('disconnected');
                 statusIndicator.classList.add('connected');
                 loginBtn.disabled = false;
+                loginAsObserverBtn.disabled = false;
             } else {
                 statusIndicator.textContent = 'Disconnected from server';
                 statusIndicator.classList.remove('connected');
                 statusIndicator.classList.add('disconnected');
                 loginBtn.disabled = true;
+                loginAsObserverBtn.disabled = true;
             }
         }
         
@@ -564,7 +622,7 @@
         }
         
         // Function for login
-        function handleLogin() {
+        function handleLogin(asObserver) {
             const name = nameInput.value.trim();
             if (!name) {
                 loginError.classList.remove('hidden');
@@ -580,9 +638,10 @@
             }
             
             state.currentUser = name;
+            state.observerMode = asObserver;
             
             // Connect to the room
-            socket.emit('joinRoom', { room, name });
+            socket.emit('joinRoom', { room, name, isObserver: asObserver });
             
             // Update URL
             const url = new URL(window.location);
@@ -594,6 +653,14 @@
             currentUserName.textContent = name;
             loginContainer.classList.add('hidden');
             votingContainer.classList.remove('hidden');
+            
+            // Update observer badge
+            if (asObserver) {
+                observerBadge.classList.remove('hidden');
+                disableVotingButtons();
+            } else {
+                observerBadge.classList.add('hidden');
+            }
             
             loginError.classList.add('hidden');
             
@@ -670,6 +737,11 @@
                     itemText += ' (current user)';
                 }
                 
+                // Add observer status if applicable
+                if (user.isObserver) {
+                    itemText += ' (observer)';
+                }
+                
                 // Voting information
                 if (user.vote !== null) {
                     if (state.votingEnded) {
@@ -683,8 +755,8 @@
                         itemText += ': ✅ Voted';
                         listItem.classList.add('pending-vote');
                     }
-                } else {
-                    // Not voted yet
+                } else if (!user.isObserver) {
+                    // Not voted yet and not an observer
                     itemText += ': ⌛ Not voted yet';
                     listItem.classList.add('pending-vote');
                 }
@@ -917,3 +989,6 @@
                 }
             });
         });
+    </script>
+</body>
+</html>

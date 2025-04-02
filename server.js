@@ -20,9 +20,10 @@ io.on('connection', (socket) => {
   console.log('User connected', socket.id);
   let currentRoom = null;
   let userName = null;
+  let isObserver = false;
 
   // User joining a room
-  socket.on('joinRoom', ({ room, name }) => {
+  socket.on('joinRoom', ({ room, name, isObserver: observer }) => {
     // Create room if it doesn't exist
     if (!rooms.has(room)) {
       rooms.set(room, {
@@ -32,6 +33,7 @@ io.on('connection', (socket) => {
     }
 
     currentRoom = room;
+    isObserver = observer || false;
     
     // Check if a user with this name already exists
     const roomData = rooms.get(room);
@@ -61,11 +63,18 @@ io.on('connection', (socket) => {
     const existingUser = roomData.users.find(u => u.name === userName);
     
     if (!existingUser) {
-      roomData.users.push({ id: socket.id, name: userName, vote: null, active: true });
+      roomData.users.push({ 
+        id: socket.id, 
+        name: userName, 
+        vote: null, 
+        active: true,
+        isObserver: isObserver 
+      });
     } else {
       // Update socket connection ID for the existing user
       existingUser.id = socket.id;
       existingUser.active = true;
+      existingUser.isObserver = isObserver;
     }
 
     // Setting heartbeat for user
@@ -81,9 +90,12 @@ io.on('connection', (socket) => {
     });
     
     // Send login confirmation to specific user
-    socket.emit('joinConfirmation', { name: userName });
+    socket.emit('joinConfirmation', { 
+      name: userName,
+      isObserver: isObserver 
+    });
 
-    console.log(`User ${userName} joined room ${room}`);
+    console.log(`User ${userName} joined room ${room}${isObserver ? ' as observer' : ''}`);
   });
 
   // User voting
@@ -94,6 +106,11 @@ io.on('connection', (socket) => {
     const user = roomData.users.find(u => u.name === userName);
     
     if (user) {
+      // Observer cannot vote
+      if (user.isObserver) {
+        return;
+      }
+      
       user.vote = vote;
       io.to(currentRoom).emit('roomUpdate', {
         users: roomData.users,
