@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
   // User voting
   socket.on('vote', (vote) => {
     if (!currentRoom || !userName) return;
-
+  
     const roomData = rooms.get(currentRoom);
     const user = roomData.users.find(u => u.name === userName);
     
@@ -111,7 +111,10 @@ io.on('connection', (socket) => {
         return;
       }
       
+      // Store vote value as is, without converting to integer
+      // This preserves decimal values like 0.5
       user.vote = vote;
+      
       io.to(currentRoom).emit('roomUpdate', {
         users: roomData.users,
         votingEnded: roomData.votingEnded
@@ -159,9 +162,22 @@ io.on('connection', (socket) => {
   // Remove user by name (by other user)
   socket.on('removeUser', (userToRemove) => {
     if (!currentRoom || !userName) return;
-
+  
     const roomData = rooms.get(currentRoom);
     if (roomData) {
+      // Find the current user
+      const currentUser = roomData.users.find(u => u.name === userName);
+      
+      // Only observers can remove users
+      if (!currentUser || !currentUser.isObserver) {
+        socket.emit('userRemoved', {
+          status: 'error',
+          userName: userToRemove,
+          message: 'Only observers can remove users from the room'
+        });
+        return;
+      }
+      
       // Find the user to remove
       const userIndex = roomData.users.findIndex(u => u.name === userToRemove);
       
@@ -194,13 +210,13 @@ io.on('connection', (socket) => {
           userName: userToRemove
         });
         
-        console.log(`User ${userToRemove} was removed from room ${currentRoom} by ${userName}`);
+        console.log(`User ${userToRemove} was removed from room ${currentRoom} by observer ${userName}`);
         
         // Notify the removed user if they are still connected
         const socketToNotify = io.sockets.sockets.get(removedUser.id);
         if (socketToNotify) {
           socketToNotify.emit('forcedDisconnect', {
-            message: `You were removed from room ${currentRoom} by another user`
+            message: `You were removed from room ${currentRoom} by an observer`
           });
           socketToNotify.leave(currentRoom);
         }

@@ -552,8 +552,9 @@
                     // If the value is a question mark, use a special value
                     socket.emit('vote', '?');
                 } else {
-                    // Otherwise send the numeric value
-                    socket.emit('vote', parseInt(voteValue, 10));
+                    // Otherwise, preserve the original string value to avoid rounding issues
+                    // This is important for decimal values like 0.5
+                    socket.emit('vote', voteValue);
                 }
                 
                 voteError.classList.add('hidden');
@@ -766,8 +767,8 @@
                 // Add to list item
                 listItem.appendChild(userInfoSpan);
                 
-                // Add remove button (×) for all users except current user
-                if (!isCurrentUser) {
+                // Add remove button (×) ONLY if current user is an observer AND not trying to remove themselves
+                if (!isCurrentUser && state.observerMode) {
                     const removeButton = document.createElement('span');
                     removeButton.textContent = '×';
                     removeButton.className = 'remove-user';
