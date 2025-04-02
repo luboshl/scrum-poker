@@ -1,0 +1,320 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+h1 {
+    text-align: center;
+    color: #333;
+    margin-top: 0px;
+}
+.container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.login-container, .voting-container, .results-container {
+    margin-top: 20px;
+}
+.hidden {
+    display: none;
+}
+input, button {
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 4px;
+}
+input {
+    border: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+}
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #45a049;
+}
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.action-buttons button {
+    flex: 1;
+}
+
+.voting-buttons {
+    margin: 20px 0;
+}
+
+.fibonacci-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.vote-btn {
+    padding: 10px 0;
+    min-width: 40px;
+    flex: 1 1 40px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #4CAF50;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 5px;
+}
+
+.vote-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+.vote-btn.selected {
+    background-color: #ff9800; /* Orange color instead of blue */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+#endVotingBtn {
+    background-color: #2196F3; /* Blue color instead of orange */
+}
+#endVotingBtn:hover {
+    background-color: #0b7dda; /* Darker blue on hover */
+}
+
+#resetBtn {
+    background-color: #f44336;
+}
+#resetBtn:hover {
+    background-color: #d32f2f;
+}
+
+.connected {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+.disconnected {
+    background-color: #f2dede;
+    color: #a94442;
+}
+
+.room-info {
+    background-color: #f2f2f2;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.room-info code, .room-code {
+    background-color: #e0e0e0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.copy-btn {
+    background-color: #2196F3;
+    margin-left: 10px;
+    padding: 2px 8px;
+    font-size: 0.8em;
+}
+
+.copy-btn:hover {
+    background-color: #0b7dda;
+}
+
+.voting-stats {
+    background-color: #e8f4f8;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.stat {
+    margin: 5px 0;
+}
+
+.consensus {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    border-left: 5px solid #28a745;
+    font-size: 18px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+/* Styles for users lists */
+.users-container {
+    margin-top: 20px;
+}
+
+.users-container h3 {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.users-list {
+    margin: 0;
+    padding-left: 25px;
+}
+
+.user-item {
+    margin: 4px 0;
+    padding: 2px 0;
+}
+
+.user-item.current-user {
+    font-weight: bold;
+    background-color: #e7f3ff;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-left: -5px;
+}
+
+/* Style for hidden votes */
+.pending-vote {
+    color: #888;
+}
+
+/* Style for footer */
+.footer {
+    margin-top: 30px;
+    padding-top: 10px;
+}
+
+.status-indicator {
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Styles for confetti */
+canvas.confetti {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.login-room-id {
+    font-family: monospace;
+    background-color: #e0e0e0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.small-text {
+    font-size: 0.8em;
+    font-weight: normal;
+}
+
+/* Style for user remove button */
+.remove-user {
+    color: #f44336;
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 5px;
+    border-radius: 3px;
+}
+
+.remove-user:hover {
+    background-color: #ffebee;
+}
+
+/* Style for login buttons */
+.login-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.login-buttons button {
+    flex: 1;
+}
+
+#loginAsObserverBtn {
+    background-color: #607D8B;
+}
+
+#loginAsObserverBtn:hover {
+    background-color: #455A64;
+}
+
+.observer-badge {
+    background-color: #607D8B;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+/* Styles for progress bar */
+.progress-container {
+    margin: 15px 0;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #4CAF50;
+    border-radius: 10px;
+    transition: width 0.5s ease-in-out;
+    text-align: center;
+    line-height: 20px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 5px;
+    color: #555;
+}
