@@ -22,7 +22,7 @@
     <meta name="twitter:description" content="Real-time web application for Scrum Pocker designed for agile teams.">
     <meta name="twitter:image" content="https://scrum-poker.up.railway.app/scrum-poker.png">
     
-    <title>Scrum Poker</title>
+        <title>Scrum Poker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -294,24 +294,24 @@
             <div id="votingButtons" class="voting-buttons">
                 <h3>Choose your estimate:</h3>
                 <div class="fibonacci-buttons">
+                    <button class="vote-btn" data-value="0.5">0.5</button>
                     <button class="vote-btn" data-value="1">1</button>
                     <button class="vote-btn" data-value="2">2</button>
                     <button class="vote-btn" data-value="3">3</button>
                     <button class="vote-btn" data-value="5">5</button>
                     <button class="vote-btn" data-value="8">8</button>
                     <button class="vote-btn" data-value="13">13</button>
-                    <button class="vote-btn" data-value="21">21</button>
-                    <button class="vote-btn" data-value="34">34</button>
-                    <button class="vote-btn" data-value="55">55</button>
-                    <button class="vote-btn" data-value="89">89</button>
+                    <button class="vote-btn" data-value="20">20</button>
+                    <button class="vote-btn" data-value="40">40</button>
+                    <button class="vote-btn" data-value="100">100</button>
                     <button class="vote-btn" data-value="?">?</button>
                 </div>
             </div>
             <p id="voteError" class="error hidden">Please select an estimate</p>
             
             <div class="action-buttons">
-                <button id="endVotingBtn">End voting</button>
-                <button id="resetBtn">New voting</button>
+                <button id="endVotingBtn">Show voting</button>
+                <button id="resetBtn">Clear voting</button>
             </div>
             
             <div class="users-container">
