@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
   // User voting
   socket.on('vote', (vote) => {
     if (!currentRoom || !userName) return;
-  
+
     const roomData = rooms.get(currentRoom);
     const user = roomData.users.find(u => u.name === userName);
     
@@ -162,7 +162,7 @@ io.on('connection', (socket) => {
   // Remove user by name (by other user)
   socket.on('removeUser', (userToRemove) => {
     if (!currentRoom || !userName) return;
-  
+
     const roomData = rooms.get(currentRoom);
     if (roomData) {
       // Find the current user

@@ -267,7 +267,7 @@
             font-weight: normal;
         }
         
-        /* Styl pro tlačítko odstranění uživatele */
+        /* Style for user remove button */
         .remove-user {
             color: #f44336;
             margin-left: 8px;
@@ -281,7 +281,7 @@
             background-color: #ffebee;
         }
         
-        /* Styl pro tlačítka přihlášení */
+        /* Style for login buttons */
         .login-buttons {
             display: flex;
             gap: 10px;
@@ -306,6 +306,43 @@
             padding: 2px 6px;
             font-size: 0.8em;
             margin-left: 5px;
+        }
+        
+        /* Styles for progress bar */
+        .progress-container {
+            margin: 15px 0;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 5px;
+            color: #555;
         }
     </style>
 </head>
@@ -360,6 +397,13 @@
             
             <div class="users-container">
                 <h2>Voting</h2>
+                
+                <div id="votingProgress" class="progress-container">
+                    <div class="progress-bar-container">
+                        <div id="progressBar" class="progress-bar" style="width: 0%">0%</div>
+                    </div>
+                    <div id="progressText" class="progress-text">0 out of 0 users have voted</div>
+                </div>
                 
                 <div id="consensusMessage" class="consensus hidden">
                     🎉 CONSENSUS! 🎉 All participants voted the same value!
@@ -454,6 +498,7 @@
             updateUsersList();
             updateVotingStats();
             updateEndVotingButton();
+            updateVotingProgress();
         });
         
         // Login confirmation with possibly modified name
@@ -479,6 +524,7 @@
             document.querySelectorAll('.vote-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
+            updateVotingProgress();
         });
         
         // User removed event
@@ -667,6 +713,9 @@
             
             // Start heartbeat interval
             startHeartbeat();
+            
+            // Update voting progress
+            updateVotingProgress();
         }
         
         // Function to copy link
@@ -703,6 +752,9 @@
             // Enable "End voting" button
             endVotingBtn.disabled = false;
             endVotingBtn.title = "";
+            
+            // Update voting progress
+            updateVotingProgress();
         }
         
         // Function to update user list
@@ -876,6 +928,38 @@
             }
         }
         
+        // Function to update voting progress
+        function updateVotingProgress() {
+            // Get count of voters (excluding observers)
+            const voters = state.users.filter(user => !user.isObserver);
+            const totalVoters = voters.length;
+            
+            // Get count of users who have already voted
+            const votedUsers = voters.filter(user => user.vote !== null);
+            const votedCount = votedUsers.length;
+            
+            // Calculate percentage
+            const percentage = totalVoters > 0 ? Math.round((votedCount / totalVoters) * 100) : 0;
+            
+            // Update progress bar
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = `${percentage}%`;
+            
+            // Update text
+            const progressText = document.getElementById('progressText');
+            progressText.textContent = `${votedCount} out of ${totalVoters} users have voted`;
+            
+            // Change color based on percentage
+            if (percentage < 33) {
+                progressBar.style.backgroundColor = '#f44336'; // red for less than 33%
+            } else if (percentage < 66) {
+                progressBar.style.backgroundColor = '#ff9800'; // orange for 33-66%
+            } else {
+                progressBar.style.backgroundColor = '#4CAF50'; // green for more than 66%
+            }
+        }
+        
         // Function to display confetti
         function triggerConfetti() {
             confetti({
@@ -969,6 +1053,9 @@
             
             // Update end voting button state
             updateEndVotingButton();
+            
+            // Update voting progress
+            updateVotingProgress();
             
             // Set page title based on room ID
             if (state.currentRoom) {
