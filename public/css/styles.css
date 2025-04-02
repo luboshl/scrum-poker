@@ -90,6 +90,16 @@ button:disabled {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
+.vote-btn.cancel-vote {
+    background-color: #f44336; /* Red color for the cancel button */
+    color: white;
+    font-weight: bold;
+}
+
+.vote-btn.cancel-vote:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
 #endVotingBtn {
     background-color: #2196F3; /* Blue color instead of orange */
 }

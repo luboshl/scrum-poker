@@ -123,6 +123,30 @@ io.on('connection', (socket) => {
     }
   });
 
+  // User canceling their vote
+  socket.on('cancelVote', () => {
+    if (!currentRoom || !userName) return;
+  
+    const roomData = rooms.get(currentRoom);
+    const user = roomData.users.find(u => u.name === userName);
+    
+    if (user) {
+      // Observer cannot vote or cancel votes
+      if (user.isObserver) {
+        return;
+      }
+      
+      // Set vote to null (like the user hasn't voted)
+      user.vote = null;
+      
+      io.to(currentRoom).emit('roomUpdate', {
+        users: roomData.users,
+        votingEnded: roomData.votingEnded
+      });
+      console.log(`User ${userName} canceled their vote`);
+    }
+  });
+
   // End voting
   socket.on('endVoting', () => {
     if (!currentRoom) return;

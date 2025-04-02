@@ -89,6 +89,51 @@ function checkUrlParams() {
     }
 }
 
+// Add event listeners for value buttons
+function setupVoteButtons() {
+    document.querySelectorAll('.vote-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // If in observer mode, don't allow voting
+            if (state.observerMode) {
+                return;
+            }
+            
+            // Get value from data-value
+            let voteValue = this.getAttribute('data-value');
+            
+            // Remove selected class from all buttons
+            document.querySelectorAll('.vote-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Handle cancel vote button (X)
+            if (voteValue === 'cancel') {
+                // Send a special value to indicate vote cancellation
+                socket.emit('cancelVote');
+                
+                // Don't add selected class to cancel button
+                voteError.classList.add('hidden');
+                return;
+            }
+            
+            // Add selected class to the chosen button
+            this.classList.add('selected');
+            
+            // Send vote
+            if (voteValue === '?') {
+                // If the value is a question mark, use a special value
+                socket.emit('vote', '?');
+            } else {
+                // Otherwise, preserve the original string value to avoid rounding issues
+                // This is important for decimal values like 0.5
+                socket.emit('vote', voteValue);
+            }
+            
+            voteError.classList.add('hidden');
+        });
+    });
+}
+
 // Event listeners
 function setupEventListeners() {
     // Login button events
@@ -109,36 +154,6 @@ function setupEventListeners() {
     resetBtn.addEventListener('click', handleResetVoting);
     copyLinkBtn.addEventListener('click', copyRoomLink);
     
-    // Add event listeners for value buttons
-    document.querySelectorAll('.vote-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            // If in observer mode, don't allow voting
-            if (state.observerMode) {
-                return;
-            }
-            
-            // Remove selected class from all buttons
-            document.querySelectorAll('.vote-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            
-            // Add selected class to the chosen button
-            this.classList.add('selected');
-            
-            // Get value from data-value
-            let voteValue = this.getAttribute('data-value');
-            
-            // Send vote
-            if (voteValue === '?') {
-                // If the value is a question mark, use a special value
-                socket.emit('vote', '?');
-            } else {
-                // Otherwise, preserve the original string value to avoid rounding issues
-                // This is important for decimal values like 0.5
-                socket.emit('vote', voteValue);
-            }
-            
-            voteError.classList.add('hidden');
-        });
-    });
+    // Setup voting buttons
+    setupVoteButtons();
 }
