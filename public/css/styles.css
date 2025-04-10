@@ -161,6 +161,17 @@ button:disabled {
     margin: 5px 0;
 }
 
+.stat-highlight {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #155724;
+    background-color: #d4edda;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border-left: 4px solid #28a745;
+    margin: 10px 0;
+}
+
 .consensus {
     background-color: #d4edda;
     color: #155724;
