@@ -26,19 +26,10 @@ function updateVotingStats() {
                 consensusMessage.classList.remove('hidden');
                 triggerConfetti();
             }
-            
-            // Average
+              // Average
             const sum = votes.reduce((acc, vote) => acc + vote, 0);
             const average = sum / votes.length;
             avgVote.textContent = average.toString(); // Don't round
-            
-            // Median
-            const sortedVotes = [...votes].sort((a, b) => a - b);
-            const middle = Math.floor(sortedVotes.length / 2);
-            const median = sortedVotes.length % 2 === 0
-                ? (sortedVotes[middle - 1] + sortedVotes[middle]) / 2
-                : sortedVotes[middle];
-            medianVote.textContent = median.toString(); // Don't round
             
             // Min and Max with people
             const minValue = Math.min(...votes);

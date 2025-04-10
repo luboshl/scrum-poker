@@ -28,7 +28,6 @@ const usersListContainer = document.getElementById('usersListContainer');
 const votingStats = document.getElementById('votingStats');
 const consensusMessage = document.getElementById('consensusMessage');
 const avgVote = document.getElementById('avgVote');
-const medianVote = document.getElementById('medianVote');
 const minVote = document.getElementById('minVote');
 const maxVote = document.getElementById('maxVote');
 
