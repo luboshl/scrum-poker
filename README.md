@@ -10,7 +10,7 @@ This project is primarily an experiment to test the capabilities of AI in genera
 
 ## Hosting
 
-Application is hosted in [Railway](https://railway.com). You can run the app at https://scrum-poker.up.railway.app/.
+The application is currently hosted on [Railway](https://railway.com) and is available at https://scrum-poker.up.railway.app/.
 
 ## Features
 
@@ -18,8 +18,9 @@ Application is hosted in [Railway](https://railway.com). You can run the app at 
 - Real-time interactive voting
 - Hide other users' votes until voting ends
 - Display all votes after voting ends
-- Voting statistics (average, median, minimum, maximum)
+- Voting statistics (average, minimum, maximum)
 - Ability to share room link
+- Observer mode
 - Reset voting for a new round
 - Consensus detection with celebratory confetti
 - Automatic inactive user removal
@@ -28,7 +29,7 @@ Application is hosted in [Railway](https://railway.com). You can run the app at 
 
 - **Backend**: Node.js with Express and Socket.io
 - **Frontend**: HTML, CSS, JavaScript (vanilla JavaScript, no framework)
-- **Communication**: WebSockets for real-time communication
+- **Communication**: Socket.io over WebSockets for real-time communication
 
 ## Installation
 
@@ -58,12 +59,23 @@ npm run dev
 http://localhost:3000
 ```
 
+The server listens on `process.env.PORT` and falls back to port `3000`.
+
 ## Project Structure
 
 - `server.js` - Node.js server with Express and Socket.io
-- `public/` - Static files for frontend
+- `public/` - Static files for the frontend
   - `index.html` - HTML structure of the application
-  - (CSS and JavaScript are embedded directly in the HTML file for simplicity)
+  - `css/styles.css` - Application styles
+  - `js/` - Frontend logic split into small modules
+  - `images/` - Icons and Open Graph images
+
+## Architecture Notes
+
+- Room state, votes, and heartbeats are stored in memory inside the Node.js process.
+- The current implementation is best suited for a single running instance.
+- Restarting the process clears all active rooms and votes.
+- Static frontend assets are served directly by the Express application.
 
 ## How to Use
 
@@ -77,13 +89,13 @@ http://localhost:3000
 
 ## Deployment
 
-The application can be deployed to any hosting that supports Node.js, such as:
+The application can be deployed to hosting that supports a long-running Node.js process and WebSockets, such as:
 
-- Heroku
-- DigitalOcean
-- Vercel
-- Netlify (using serverless functions)
-- AWS, Google Cloud, Azure
+- Railway
+- Render
+- Fly.io
+- Azure App Service
+- Azure Container Apps
 
 ## License
 
