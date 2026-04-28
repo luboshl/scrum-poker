@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/ScrumPoker.Domain/ScrumPoker.Domain.csproj" />
-    <ProjectReference Include="../../src/ScrumPoker.Application/ScrumPoker.Application.csproj" />
+    <ProjectReference Include="../ScrumPoker.Domain/ScrumPoker.Domain.csproj" />
+    <ProjectReference Include="../ScrumPoker.Application/ScrumPoker.Application.csproj" />
   </ItemGroup>
 
 </Project>

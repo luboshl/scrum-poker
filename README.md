@@ -84,12 +84,17 @@ The server listens on `process.env.PORT` and falls back to port `3000`.
 ## Solution Structure
 
 ```
-ScrumPoker.slnx                       # .NET solution file
 src/
-  ScrumPoker.AppHost/                 # .NET Aspire orchestration entry point
-  ScrumPoker.ServiceDefaults/         # Shared Aspire service defaults (telemetry, health checks)
-server.js                             # Legacy Node.js server (Express + Socket.io)
-public/                               # Static frontend assets
+  ScrumPoker.slnx                       # .NET solution file
+  ScrumPoker.AppHost/                   # .NET Aspire orchestration entry point
+  ScrumPoker.ServiceDefaults/           # Shared Aspire service defaults (telemetry, health checks)
+  ScrumPoker.Web/                       # ASP.NET Core + SignalR backend host
+  ScrumPoker.Application/               # Application services layer
+  ScrumPoker.Domain/                    # Domain model layer
+  ScrumPoker.UnitTests/                 # Unit tests (domain and application)
+  ScrumPoker.IntegrationTests/          # Integration tests (WebApplicationFactory smoke tests)
+server.js                               # Legacy Node.js server (Express + Socket.io)
+public/                                 # Static frontend assets
 ```
 
 ## Project Structure
