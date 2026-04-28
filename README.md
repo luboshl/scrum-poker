@@ -44,12 +44,10 @@ The application is currently hosted on [Railway](https://railway.com) and is ava
 ### Start via Aspire AppHost
 
 ```bash
-# Install Node.js dependencies (first time only)
-npm install
-
-# Start the Aspire AppHost
 dotnet run --project src/ScrumPoker.AppHost
 ```
+
+The AppHost automatically runs `npm install` before starting the Node.js app, so no manual dependency installation step is required.
 
 The Aspire dashboard URL is printed to the terminal on startup. Open it in your browser to see all running resources and their logs.
 
