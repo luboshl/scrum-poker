@@ -102,11 +102,11 @@ class RoomPage {
   // ---------------------------------------------------------------------------
 
   /**
-   * Remove a participant (only available when the current page is logged in as observer).
+   * Remove the first participant in the list (only available when logged in as observer).
    * Accepts the browser confirm() dialog automatically.
-   * @param {string} name - Display name of the participant to remove.
+   * Use {@link removeParticipantByName} to remove a specific participant by name.
    */
-  async removeParticipant(name) {
+  async removeParticipant() {
     this.page.once('dialog', (dialog) => dialog.accept());
     await this.page.locator('.remove-user').filter({ hasText: '×' }).nth(0).click();
   }
