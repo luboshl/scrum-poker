@@ -41,6 +41,7 @@ coverage/
 # .NET build artifacts
 bin/
 obj/
+*.lscache
 *.user
 .vs/
 *.suo
