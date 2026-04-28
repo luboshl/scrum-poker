@@ -14,11 +14,11 @@
 
   <!--
     Restore Node.js dependencies automatically as part of the MSBuild build phase so
-    that developers only need to run `dotnet run` without a prior `npm install`.
+    that developers only need to run `dotnet run` without a prior npm restore step.
     Only runs when node_modules is missing (i.e. dependencies are not yet installed)
     and is skipped during IDE design-time builds.
   -->
-  <Target Name="NpmInstall" BeforeTargets="Build"
+  <Target Name="RestoreNpmPackages" BeforeTargets="Build"
           Condition="'$(DesignTimeBuild)' != 'true' And Exists('$(MSBuildThisFileDirectory)../../package-lock.json') And !Exists('$(MSBuildThisFileDirectory)../../node_modules')">
     <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)../.." />
   </Target>
