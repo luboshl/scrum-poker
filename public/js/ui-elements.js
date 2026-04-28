@@ -49,6 +49,7 @@ function copyRoomLink() {
 
 // Function to display confetti
 function triggerConfetti() {
+    if (typeof confetti === 'undefined') return;
     confetti({
         particleCount: 200,
         spread: 70,
