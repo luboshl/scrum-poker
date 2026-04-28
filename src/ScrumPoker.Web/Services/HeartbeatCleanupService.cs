@@ -26,7 +26,6 @@ public class HeartbeatCleanupService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(CheckInterval, stoppingToken);
             try
             {
                 var affectedRooms = _roomService.CleanupInactiveParticipants(InactivityThreshold);
@@ -42,6 +41,8 @@ public class HeartbeatCleanupService : BackgroundService
             {
                 _logger.LogError(ex, "Error during heartbeat cleanup");
             }
+
+            await Task.Delay(CheckInterval, stoppingToken);
         }
     }
 }
