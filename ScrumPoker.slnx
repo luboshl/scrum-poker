@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ScrumPoker.AppHost/ScrumPoker.AppHost.csproj" />
+    <Project Path="src/ScrumPoker.ServiceDefaults/ScrumPoker.ServiceDefaults.csproj" />
+  </Folder>
+</Solution>

@@ -38,3 +38,20 @@ yarn-error.log*
 
 # Optional: Coverage directory used by testing tools
 coverage/
+
+# .NET build artifacts
+bin/
+obj/
+*.user
+.vs/
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet packages
+*.nupkg
+*.snupkg
+[Pp]ackages/
+
+# .NET Aspire
+.aspire/
