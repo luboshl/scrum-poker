@@ -100,3 +100,9 @@ The application can be deployed to hosting that supports a long-running Node.js 
 ## License
 
 MIT
+
+## End-to-End Testing
+
+A Playwright baseline parity suite is included to lock down the current user-visible behavior before the backend migration.
+
+See [E2E_TESTING.md](E2E_TESTING.md) for setup and usage instructions.

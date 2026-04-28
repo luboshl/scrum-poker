@@ -38,3 +38,9 @@ yarn-error.log*
 
 # Optional: Coverage directory used by testing tools
 coverage/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
