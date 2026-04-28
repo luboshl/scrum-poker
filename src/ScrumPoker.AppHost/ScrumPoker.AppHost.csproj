@@ -12,4 +12,12 @@
     <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
   </ItemGroup>
 
+  <!--
+    Restore Node.js dependencies automatically as part of the MSBuild restore phase
+    so that developers only need to run `dotnet run` without a prior `npm install`.
+  -->
+  <Target Name="NpmInstall" BeforeTargets="Build" Condition="Exists('$(MSBuildThisFileDirectory)../../package.json')">
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)../.." />
+  </Target>
+
 </Project>
