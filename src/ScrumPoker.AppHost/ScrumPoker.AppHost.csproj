@@ -12,6 +12,10 @@
     <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../ScrumPoker.Web/ScrumPoker.Web.csproj" />
+  </ItemGroup>
+
   <!--
     Restore Node.js dependencies automatically as part of the MSBuild build phase so
     that developers only need to run `dotnet run` without a prior npm restore step.
