@@ -33,7 +33,9 @@ public class HeartbeatCleanupService : BackgroundService
                 {
                     var state = _roomService.GetRoomState(roomId);
                     if (state != null)
+                    {
                         await _hubContext.Clients.Group(roomId).SendAsync("roomUpdate", state, stoppingToken);
+                    }
                     _logger.LogInformation("Cleaned up inactive participants in room {RoomId}", roomId);
                 }
             }

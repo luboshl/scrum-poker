@@ -34,54 +34,91 @@ public class ScrumPokerHub : Hub
 
     public async Task Vote(string vote)
     {
-        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info)) return;
-        if (!_roomService.Vote(info.RoomId, Context.ConnectionId, vote)) return;
+        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info))
+        {
+            return;
+        }
+        if (!_roomService.Vote(info.RoomId, Context.ConnectionId, vote))
+        {
+            return;
+        }
 
         var state = _roomService.GetRoomState(info.RoomId);
         if (state != null)
+        {
             await Clients.Group(info.RoomId).SendAsync("roomUpdate", state);
+        }
     }
 
     public async Task CancelVote()
     {
-        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info)) return;
-        if (!_roomService.CancelVote(info.RoomId, Context.ConnectionId)) return;
+        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info))
+        {
+            return;
+        }
+        if (!_roomService.CancelVote(info.RoomId, Context.ConnectionId))
+        {
+            return;
+        }
 
         var state = _roomService.GetRoomState(info.RoomId);
         if (state != null)
+        {
             await Clients.Group(info.RoomId).SendAsync("roomUpdate", state);
+        }
     }
 
     public async Task EndVoting()
     {
-        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info)) return;
-        if (!_roomService.EndVoting(info.RoomId, Context.ConnectionId)) return;
+        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info))
+        {
+            return;
+        }
+        if (!_roomService.EndVoting(info.RoomId, Context.ConnectionId))
+        {
+            return;
+        }
 
         var state = _roomService.GetRoomState(info.RoomId);
         if (state != null)
+        {
             await Clients.Group(info.RoomId).SendAsync("roomUpdate", state);
+        }
     }
 
     public async Task ResetVoting()
     {
-        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info)) return;
-        if (!_roomService.ResetVoting(info.RoomId, Context.ConnectionId)) return;
+        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info))
+        {
+            return;
+        }
+        if (!_roomService.ResetVoting(info.RoomId, Context.ConnectionId))
+        {
+            return;
+        }
 
         await Clients.Group(info.RoomId).SendAsync("resetVoting");
         var state = _roomService.GetRoomState(info.RoomId);
         if (state != null)
+        {
             await Clients.Group(info.RoomId).SendAsync("roomUpdate", state);
+        }
     }
 
     public async Task RemoveUser(string userToRemove)
     {
-        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info)) return;
+        if (!_connectionMap.TryGetValue(Context.ConnectionId, out var info))
+        {
+            return;
+        }
         var result = _roomService.RemoveUser(info.RoomId, Context.ConnectionId, userToRemove);
 
         if (result.Success)
         {
             if (result.RoomState != null)
+            {
                 await Clients.Group(info.RoomId).SendAsync("roomUpdate", result.RoomState);
+            }
 
             await Clients.Caller.SendAsync("userRemoved", new { status = "success", userName = userToRemove });
 
@@ -102,7 +139,9 @@ public class ScrumPokerHub : Hub
     public Task Heartbeat()
     {
         if (_connectionMap.TryGetValue(Context.ConnectionId, out var info))
+        {
             _roomService.UpdateHeartbeat(info.RoomId, Context.ConnectionId);
+        }
         return Task.CompletedTask;
     }
 
@@ -113,7 +152,9 @@ public class ScrumPokerHub : Hub
             _roomService.Disconnect(info.RoomId, Context.ConnectionId);
             var state = _roomService.GetRoomState(info.RoomId);
             if (state != null)
+            {
                 await Clients.Group(info.RoomId).SendAsync("roomUpdate", state);
+            }
             _logger.LogInformation("User {Name} disconnected from room {Room}", info.UserName, info.RoomId);
         }
         await base.OnDisconnectedAsync(exception);
