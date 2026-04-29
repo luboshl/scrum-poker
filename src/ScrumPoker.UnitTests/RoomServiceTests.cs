@@ -346,7 +346,7 @@ public class RoomServiceTests
     }
 
     [Fact]
-    public void CleanupInactiveParticipants_EmptiesRoom_RemovesRoomFromStore()
+    public void CleanupInactiveParticipants_EmptiesRoom_SetsEmptySinceInsteadOfRemoving()
     {
         // Arrange
         var svc = CreateService();
@@ -356,7 +356,8 @@ public class RoomServiceTests
         svc.CleanupInactiveParticipants(TimeSpan.Zero);
 
         // Assert
-        svc.GetRoomState("room1").Should().BeNull();
+        svc.GetRoomState("room1").Should().NotBeNull();
+        svc.GetRoomState("room1")!.Users.Should().BeEmpty();
     }
 
     [Fact]
@@ -374,7 +375,7 @@ public class RoomServiceTests
     }
 
     [Fact]
-    public void Disconnect_LastParticipant_RemovesRoomFromStore()
+    public void Disconnect_LastParticipant_SetsRoomEmptySince()
     {
         // Arrange
         var svc = CreateService();
@@ -384,7 +385,87 @@ public class RoomServiceTests
         svc.Disconnect("room1", "conn1");
 
         // Assert
+        svc.GetRoomState("room1").Should().NotBeNull();
+        svc.GetRoomState("room1")!.Users.Should().BeEmpty();
+    }
+
+    // ── CleanupEmptyRooms ─────────────────────────────────────────────────────
+
+    [Fact]
+    public void CleanupEmptyRooms_RemovesRoomEmptyLongerThanRetention()
+    {
+        // Arrange
+        var svc = CreateService();
+        svc.JoinRoom("room1", "conn1", "Alice", false);
+        svc.Disconnect("room1", "conn1");
+
+        // Act
+        svc.CleanupEmptyRooms(TimeSpan.Zero);
+
+        // Assert
         svc.GetRoomState("room1").Should().BeNull();
+    }
+
+    [Fact]
+    public void CleanupEmptyRooms_KeepsRoomEmptyForLessThanRetention()
+    {
+        // Arrange
+        var svc = CreateService();
+        svc.JoinRoom("room1", "conn1", "Alice", false);
+        svc.Disconnect("room1", "conn1");
+
+        // Act
+        svc.CleanupEmptyRooms(TimeSpan.FromHours(1));
+
+        // Assert
+        svc.GetRoomState("room1").Should().NotBeNull();
+    }
+
+    [Fact]
+    public void CleanupEmptyRooms_DoesNotRemoveRoomWithActiveParticipants()
+    {
+        // Arrange
+        var svc = CreateService();
+        svc.JoinRoom("room1", "conn1", "Alice", false);
+
+        // Act
+        svc.CleanupEmptyRooms(TimeSpan.Zero);
+
+        // Assert
+        svc.GetRoomState("room1").Should().NotBeNull();
+        svc.GetRoomState("room1")!.Users.Should().ContainSingle(u => u.Name == "Alice");
+    }
+
+    [Fact]
+    public void CleanupEmptyRooms_AfterInactiveCleanup_RemovesRoom()
+    {
+        // Arrange
+        var svc = CreateService();
+        svc.JoinRoom("room1", "conn1", "Alice", false);
+        svc.CleanupInactiveParticipants(TimeSpan.Zero);
+
+        // Act
+        svc.CleanupEmptyRooms(TimeSpan.Zero);
+
+        // Assert
+        svc.GetRoomState("room1").Should().BeNull();
+    }
+
+    [Fact]
+    public void JoinRoom_WhenRoomWasEmpty_ClearsEmptySince()
+    {
+        // Arrange
+        var svc = CreateService();
+        svc.JoinRoom("room1", "conn1", "Alice", false);
+        svc.Disconnect("room1", "conn1");
+
+        // Act - rejoin before retention expires
+        svc.JoinRoom("room1", "conn2", "Bob", false);
+
+        // Assert - room should not be removed even with zero retention because EmptySince was cleared
+        svc.CleanupEmptyRooms(TimeSpan.Zero);
+        svc.GetRoomState("room1").Should().NotBeNull();
+        svc.GetRoomState("room1")!.Users.Should().ContainSingle(u => u.Name == "Bob");
     }
 
     // ── GetRoomState ──────────────────────────────────────────────────────────

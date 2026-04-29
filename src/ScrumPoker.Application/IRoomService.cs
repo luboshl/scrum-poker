@@ -12,4 +12,5 @@ public interface IRoomService
     void Disconnect(string roomId, string connectionId);
     RoomStateDto? GetRoomState(string roomId);
     IReadOnlyList<string> CleanupInactiveParticipants(TimeSpan inactivityThreshold);
+    void CleanupEmptyRooms(TimeSpan emptyRoomRetention);
 }

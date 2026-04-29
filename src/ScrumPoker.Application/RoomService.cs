@@ -28,6 +28,8 @@ public class RoomService : IRoomService
                 room.Participants.Add(new Participant(connectionId, uniqueName, isObserver));
             }
 
+            room.EmptySince = null;
+
             return new JoinResult(true, uniqueName, isObserver, ProjectRoom(room));
         }
     }
@@ -186,7 +188,7 @@ public class RoomService : IRoomService
 
             if (room.Participants.Count == 0)
             {
-                _store.Remove(roomId);
+                room.EmptySince ??= DateTime.UtcNow;
             }
         }
     }
@@ -221,11 +223,26 @@ public class RoomService : IRoomService
 
                 if (room.Participants.Count == 0)
                 {
-                    _store.Remove(room.Id);
+                    room.EmptySince ??= DateTime.UtcNow;
                 }
             }
         }
         return affectedRooms;
+    }
+
+    public void CleanupEmptyRooms(TimeSpan emptyRoomRetention)
+    {
+        var cutoff = DateTime.UtcNow - emptyRoomRetention;
+        foreach (var room in _store.GetAll())
+        {
+            lock (room.SyncRoot)
+            {
+                if (room.Participants.Count == 0 && room.EmptySince <= cutoff)
+                {
+                    _store.Remove(room.Id);
+                }
+            }
+        }
     }
 
     private static RoomStateDto ProjectRoom(Room room) =>
