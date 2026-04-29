@@ -38,9 +38,23 @@ function disableVotingButtons() {
 // Function to copy link
 function copyRoomLink() {
     const url = window.location.href;
+    const originalText = copyLinkBtn.textContent;
+
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        copyLinkBtn.textContent = 'Copy failed';
+        setTimeout(() => {
+            copyLinkBtn.textContent = originalText;
+        }, 2000);
+        return;
+    }
+
     navigator.clipboard.writeText(url).then(() => {
-        const originalText = copyLinkBtn.textContent;
         copyLinkBtn.textContent = 'Copied!';
+        setTimeout(() => {
+            copyLinkBtn.textContent = originalText;
+        }, 2000);
+    }).catch(() => {
+        copyLinkBtn.textContent = 'Copy failed';
         setTimeout(() => {
             copyLinkBtn.textContent = originalText;
         }, 2000);
@@ -49,6 +63,9 @@ function copyRoomLink() {
 
 // Function to display confetti
 function triggerConfetti() {
+    if (typeof confetti !== 'function') {
+        return;
+    }
     confetti({
         particleCount: 200,
         spread: 70,

@@ -26,8 +26,15 @@ function startHeartbeat() {
     setupActivityListeners();
 }
 
+let activityListenersRegistered = false;
+
 // Set up event listeners for activity detection
 function setupActivityListeners() {
+    if (activityListenersRegistered) {
+        return;
+    }
+    activityListenersRegistered = true;
+
     // Send heartbeat on interaction with the application
     window.addEventListener('click', sendHeartbeat);
     window.addEventListener('keypress', sendHeartbeat);

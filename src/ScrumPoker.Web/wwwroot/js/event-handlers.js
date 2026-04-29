@@ -1,5 +1,8 @@
 // Function for login
 function handleLogin(asObserver) {
+    if (!state.connected) {
+        return;
+    }
     const name = nameInput.value.trim();
     if (!name) {
         loginError.classList.remove('hidden');
