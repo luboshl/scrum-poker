@@ -38,3 +38,10 @@ yarn-error.log*
 
 # Optional: Coverage directory used by testing tools
 coverage/
+
+# .NET build artifacts
+[Bb]in/
+[Oo]bj/
+*.user
+.vs/
+TestResults/

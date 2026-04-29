@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/ScrumPoker.Domain/ScrumPoker.Domain.csproj" />
+  <Project Path="src/ScrumPoker.Application/ScrumPoker.Application.csproj" />
+  <Project Path="src/ScrumPoker.Web/ScrumPoker.Web.csproj" />
+  <Project Path="tests/ScrumPoker.UnitTests/ScrumPoker.UnitTests.csproj" />
+</Solution>
