@@ -17,7 +17,6 @@ public class ScrumPokerHubTests : IClassFixture<WebApplicationFactory<Program>>,
 
     public async Task InitializeAsync()
     {
-        var httpClient = _factory.CreateClient();
         _connection = new HubConnectionBuilder()
             .WithUrl("http://localhost/hub", options =>
             {
@@ -80,7 +79,9 @@ public class ScrumPokerHubTests : IClassFixture<WebApplicationFactory<Program>>,
         _connection.On<RoomStateDto>("roomUpdate", state =>
         {
             if (state.Users.Any(u => u.Vote == "5"))
+            {
                 voteTcs.TrySetResult(state);
+            }
         });
 
         await _connection.InvokeAsync("Vote", "5");
@@ -100,7 +101,10 @@ public class ScrumPokerHubTests : IClassFixture<WebApplicationFactory<Program>>,
         var endTcs = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
         _connection.On<RoomStateDto>("roomUpdate", state =>
         {
-            if (state.VotingEnded) endTcs.TrySetResult(state);
+            if (state.VotingEnded)
+            {
+                endTcs.TrySetResult(state);
+            }
         });
 
         await _connection.InvokeAsync("EndVoting");
