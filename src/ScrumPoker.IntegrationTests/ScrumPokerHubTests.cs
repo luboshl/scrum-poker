@@ -17,7 +17,6 @@ public class ScrumPokerHubTests : IClassFixture<WebApplicationFactory<Program>>,
 
     public async Task InitializeAsync()
     {
-        var httpClient = _factory.CreateClient();
         _connection = new HubConnectionBuilder()
             .WithUrl("http://localhost/hub", options =>
             {
