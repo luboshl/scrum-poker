@@ -12,6 +12,7 @@ public class HeartbeatCleanupService : BackgroundService
     private readonly TimeSpan _emptyRoomRetention;
     private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan InactivityThreshold = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan DefaultEmptyRoomRetention = TimeSpan.FromHours(1);
 
     public HeartbeatCleanupService(
         IRoomService roomService,
@@ -22,7 +23,7 @@ public class HeartbeatCleanupService : BackgroundService
         _roomService = roomService;
         _hubContext = hubContext;
         _logger = logger;
-        _emptyRoomRetention = configuration.GetValue<TimeSpan?>("RoomCleanup:EmptyRoomRetention") ?? TimeSpan.FromHours(1);
+        _emptyRoomRetention = configuration.GetValue<TimeSpan?>("RoomCleanup:EmptyRoomRetention") ?? DefaultEmptyRoomRetention;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

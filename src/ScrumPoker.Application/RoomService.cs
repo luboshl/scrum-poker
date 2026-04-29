@@ -237,7 +237,7 @@ public class RoomService : IRoomService
         {
             lock (room.SyncRoot)
             {
-                if (room.Participants.Count == 0 && room.EmptySince <= cutoff)
+                if (room.Participants.Count == 0 && room.EmptySince.HasValue && room.EmptySince.Value <= cutoff)
                 {
                     _store.Remove(room.Id);
                 }
