@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using ScrumPoker.Domain;
 
 namespace ScrumPoker.Application;
@@ -6,19 +5,13 @@ namespace ScrumPoker.Application;
 public class RoomService : IRoomService
 {
     private readonly IRoomStore _store;
-    // Lock objects are never removed after room creation. For the expected scale of
-    // a Scrum Poker app (hundreds of rooms at most), this is an intentional trade-off
-    // to avoid additional synchronization overhead.
-    private readonly ConcurrentDictionary<string, object> _locks = new(StringComparer.OrdinalIgnoreCase);
 
     public RoomService(IRoomStore store) => _store = store;
-
-    private object LockFor(string roomId) => _locks.GetOrAdd(roomId, _ => new object());
 
     public JoinResult JoinRoom(string roomId, string connectionId, string name, bool isObserver)
     {
         var room = _store.GetOrCreate(roomId);
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             var existing = room.Participants.FirstOrDefault(p => p.ConnectionId == connectionId);
             var uniqueName = ResolveName(room, name, connectionId);
@@ -60,7 +53,7 @@ public class RoomService : IRoomService
         {
             return false;
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             var participant = room.Participants.FirstOrDefault(p => p.ConnectionId == connectionId && p.Active);
             if (participant == null || participant.IsObserver)
@@ -79,7 +72,7 @@ public class RoomService : IRoomService
         {
             return false;
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             var participant = room.Participants.FirstOrDefault(p => p.ConnectionId == connectionId && p.Active);
             if (participant == null || participant.IsObserver)
@@ -98,7 +91,7 @@ public class RoomService : IRoomService
         {
             return false;
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             if (room.VotingEnded)
             {
@@ -116,7 +109,7 @@ public class RoomService : IRoomService
         {
             return false;
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             room.VotingEnded = false;
             foreach (var p in room.Participants)
@@ -134,7 +127,7 @@ public class RoomService : IRoomService
         {
             return new RemoveUserResult(false, "Room not found", null, null);
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             var requester = room.Participants.FirstOrDefault(p => p.ConnectionId == requesterConnectionId && p.Active);
             if (requester == null || !requester.IsObserver)
@@ -165,7 +158,7 @@ public class RoomService : IRoomService
         {
             return;
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             var participant = room.Participants.FirstOrDefault(p => p.ConnectionId == connectionId);
             if (participant != null)
@@ -182,7 +175,7 @@ public class RoomService : IRoomService
         {
             return;
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             var participant = room.Participants.FirstOrDefault(p => p.ConnectionId == connectionId);
             if (participant != null)
@@ -200,7 +193,7 @@ public class RoomService : IRoomService
         {
             return null;
         }
-        lock (LockFor(roomId))
+        lock (room.SyncRoot)
         {
             return ProjectRoom(room);
         }
@@ -212,7 +205,7 @@ public class RoomService : IRoomService
         var affectedRooms = new List<string>();
         foreach (var room in _store.GetAll())
         {
-            lock (LockFor(room.Id))
+            lock (room.SyncRoot)
             {
                 int before = room.Participants.Count;
                 room.Participants.RemoveAll(p => p.LastHeartbeat < cutoff);
