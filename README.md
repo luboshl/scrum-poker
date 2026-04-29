@@ -27,9 +27,9 @@ The application is currently hosted on [Railway](https://railway.com) and is ava
 
 ## Technologies
 
-- **Backend**: Node.js with Express and Socket.io
+- **Backend**: ASP.NET Core with SignalR
 - **Frontend**: static HTML, CSS, and vanilla JavaScript
-- **Communication**: Socket.io over WebSockets for real-time communication
+- **Communication**: SignalR over WebSockets for real-time communication
 - **Local orchestration**: .NET Aspire (development only)
 
 ## Local Development with .NET Aspire (Recommended)
@@ -38,7 +38,6 @@ The application is currently hosted on [Railway](https://railway.com) and is ava
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v14 or later)
 - [.NET SDK](https://dotnet.microsoft.com/download) (v10.0 or later)
 
 ### Start via Aspire AppHost
@@ -47,39 +46,23 @@ The application is currently hosted on [Railway](https://railway.com) and is ava
 dotnet run --project src/ScrumPoker.AppHost
 ```
 
-The AppHost automatically restores npm dependencies before starting the Node.js app, so no manual dependency installation step is required.
-
 The Aspire dashboard URL is printed to the terminal on startup. Open it in your browser to see all running resources and their logs.
 
-The legacy Node.js application is available at `http://localhost:3000`.
+The application is available at the URL shown for `scrum-poker-web` in the Aspire dashboard (typically `http://localhost:5000`).
 
-> **Migration note**: During the C# backend migration, the AppHost currently orchestrates the legacy Node.js application as a temporary resource. Once the ASP.NET Core backend is scaffolded, the Node.js resource will be replaced with the new backend project.
+## Manual Local Development
 
-## Manual Local Development (Legacy Node.js)
+You can also start the ASP.NET Core application directly without Aspire:
 
-You can also start the Node.js application directly without Aspire:
-
-1. Install dependencies:
-```
-npm install
+```bash
+dotnet run --project src/ScrumPoker.Web
 ```
 
-2. Start the server:
-```
-npm start
-```
+Open the application in your browser:
 
-For development mode with auto-restart:
 ```
-npm run dev
+http://localhost:5000
 ```
-
-3. Open the application in your browser:
-```
-http://localhost:3000
-```
-
-The server listens on `process.env.PORT` and falls back to port `3000`.
 
 ## Solution Structure
 
@@ -89,31 +72,19 @@ src/
   ScrumPoker.AppHost/                   # .NET Aspire orchestration entry point
   ScrumPoker.ServiceDefaults/           # Shared Aspire service defaults (telemetry, health checks)
   ScrumPoker.Web/                       # ASP.NET Core + SignalR backend host
+    wwwroot/                            # Static frontend assets (HTML, CSS, JS)
   ScrumPoker.Application/               # Application services layer
   ScrumPoker.Domain/                    # Domain model layer
   ScrumPoker.UnitTests/                 # Unit tests (domain and application)
-  ScrumPoker.IntegrationTests/          # Integration tests (WebApplicationFactory smoke tests)
-server.js                               # Legacy Node.js server (Express + Socket.io)
-public/                                 # Static frontend assets
+  ScrumPoker.IntegrationTests/          # Integration tests (SignalR hub and host)
 ```
-
-## Project Structure
-
-- `server.js` - Node.js server with Express and Socket.io
-- `public/` - Static files for the frontend
-  - `index.html` - HTML structure of the application
-  - `css/styles.css` - Application styles
-  - `js/` - Frontend logic split into small modules
-  - `images/` - Icons and Open Graph images
-- `src/ScrumPoker.AppHost/` - .NET Aspire AppHost project for local orchestration
-- `src/ScrumPoker.ServiceDefaults/` - .NET Aspire shared service defaults
 
 ## Architecture Notes
 
-- Room state, votes, and heartbeats are stored in memory inside the Node.js process.
+- Room state, votes, and heartbeats are stored in memory inside the ASP.NET Core process.
 - The current implementation is best suited for a single running instance.
 - Restarting the process clears all active rooms and votes.
-- Static frontend assets are served directly by the Express application.
+- Static frontend assets are served directly by the ASP.NET Core application from `wwwroot/`.
 
 ## How to Use
 
@@ -127,13 +98,12 @@ public/                                 # Static frontend assets
 
 ## Deployment
 
-The application can be deployed to hosting that supports a long-running Node.js process and WebSockets, such as:
+The application can be deployed to any hosting that supports a long-running ASP.NET Core process and WebSockets, such as:
 
-- Railway
-- Render
-- Fly.io
 - Azure App Service
 - Azure Container Apps
+- Fly.io
+- Render
 
 ## License
 
@@ -141,6 +111,6 @@ MIT
 
 ## End-to-End Testing
 
-A Playwright baseline parity suite is included to lock down the current user-visible behavior before the backend migration.
+A Playwright baseline parity suite is included to validate user-visible behavior.
 
 See [E2E_TESTING.md](E2E_TESTING.md) for setup and usage instructions.
