@@ -28,23 +28,43 @@ The application is currently hosted on [Railway](https://railway.com) and is ava
 ## Technologies
 
 - **Backend**: Node.js with Express and Socket.io
-- **Frontend**: HTML, CSS, JavaScript (vanilla JavaScript, no framework)
+- **Frontend**: static HTML, CSS, and vanilla JavaScript
 - **Communication**: Socket.io over WebSockets for real-time communication
+- **Local orchestration**: .NET Aspire (development only)
 
-## Installation
+## Local Development with .NET Aspire (Recommended)
 
-1. Clone the repository:
+.NET Aspire provides a single-command startup that orchestrates the full local development stack.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v14 or later)
+- [.NET SDK](https://dotnet.microsoft.com/download) (v10.0 or later)
+
+### Start via Aspire AppHost
+
+```bash
+dotnet run --project src/ScrumPoker.AppHost
 ```
-git clone [repository-URL]
-cd scrum-poker
-```
 
-2. Install dependencies:
+The AppHost automatically restores npm dependencies before starting the Node.js app, so no manual dependency installation step is required.
+
+The Aspire dashboard URL is printed to the terminal on startup. Open it in your browser to see all running resources and their logs.
+
+The legacy Node.js application is available at `http://localhost:3000`.
+
+> **Migration note**: During the C# backend migration, the AppHost currently orchestrates the legacy Node.js application as a temporary resource. Once the ASP.NET Core backend is scaffolded, the Node.js resource will be replaced with the new backend project.
+
+## Manual Local Development (Legacy Node.js)
+
+You can also start the Node.js application directly without Aspire:
+
+1. Install dependencies:
 ```
 npm install
 ```
 
-3. Start the server:
+2. Start the server:
 ```
 npm start
 ```
@@ -54,12 +74,28 @@ For development mode with auto-restart:
 npm run dev
 ```
 
-4. Open the application in your browser:
+3. Open the application in your browser:
 ```
 http://localhost:3000
 ```
 
 The server listens on `process.env.PORT` and falls back to port `3000`.
+
+## Solution Structure
+
+```
+src/
+  ScrumPoker.slnx                       # .NET solution file
+  ScrumPoker.AppHost/                   # .NET Aspire orchestration entry point
+  ScrumPoker.ServiceDefaults/           # Shared Aspire service defaults (telemetry, health checks)
+  ScrumPoker.Web/                       # ASP.NET Core + SignalR backend host
+  ScrumPoker.Application/               # Application services layer
+  ScrumPoker.Domain/                    # Domain model layer
+  ScrumPoker.UnitTests/                 # Unit tests (domain and application)
+  ScrumPoker.IntegrationTests/          # Integration tests (WebApplicationFactory smoke tests)
+server.js                               # Legacy Node.js server (Express + Socket.io)
+public/                                 # Static frontend assets
+```
 
 ## Project Structure
 
@@ -69,6 +105,8 @@ The server listens on `process.env.PORT` and falls back to port `3000`.
   - `css/styles.css` - Application styles
   - `js/` - Frontend logic split into small modules
   - `images/` - Icons and Open Graph images
+- `src/ScrumPoker.AppHost/` - .NET Aspire AppHost project for local orchestration
+- `src/ScrumPoker.ServiceDefaults/` - .NET Aspire shared service defaults
 
 ## Architecture Notes
 
@@ -100,3 +138,9 @@ The application can be deployed to hosting that supports a long-running Node.js 
 ## License
 
 MIT
+
+## End-to-End Testing
+
+A Playwright baseline parity suite is included to lock down the current user-visible behavior before the backend migration.
+
+See [E2E_TESTING.md](E2E_TESTING.md) for setup and usage instructions.
