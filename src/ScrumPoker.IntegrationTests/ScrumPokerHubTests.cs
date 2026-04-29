@@ -80,7 +80,9 @@ public class ScrumPokerHubTests : IClassFixture<WebApplicationFactory<Program>>,
         _connection.On<RoomStateDto>("roomUpdate", state =>
         {
             if (state.Users.Any(u => u.Vote == "5"))
+            {
                 voteTcs.TrySetResult(state);
+            }
         });
 
         await _connection.InvokeAsync("Vote", "5");
