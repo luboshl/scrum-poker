@@ -15,6 +15,7 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapHub<ScrumPokerHub>("/hub");

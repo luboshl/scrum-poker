@@ -10,7 +10,7 @@ module.exports = defineConfig({
   reporter: 'list',
   timeout: 30000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:5000',
     trace: 'on-first-retry',
     actionTimeout: 10000,
   },
@@ -21,9 +21,9 @@ module.exports = defineConfig({
     },
   ],
   webServer: {
-    command: 'node server.js',
-    url: 'http://localhost:3000',
+    command: 'dotnet run --project src/ScrumPoker.Web --no-launch-profile --urls http://localhost:5000',
+    url: 'http://localhost:5000',
     reuseExistingServer: !process.env.CI,
-    timeout: 15000,
+    timeout: 120000,
   },
 });

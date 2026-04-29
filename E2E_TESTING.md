@@ -1,16 +1,14 @@
 # End-to-End Testing Guide
 
-This document explains how to run the Playwright baseline parity suite and how to use it during the backend migration.
+This document explains how to run the Playwright baseline parity suite against the ASP.NET Core + SignalR backend.
 
 ## Purpose
 
-The baseline suite locks down the current user-visible behavior of the Scrum Poker application **before** the backend is migrated from Node.js + Socket.io to ASP.NET Core + SignalR.
-
-Running the suite against both implementations confirms behavioral parity at the UI level without coupling the tests to transport-layer implementation details.
+The baseline suite validates the user-visible behavior of the Scrum Poker application running on the ASP.NET Core + SignalR backend.
 
 ## Prerequisites
 
-Node.js 18 or newer is recommended. Install all dependencies with:
+Node.js 18 or newer is required for Playwright. Install all Node.js dependencies with:
 
 ```bash
 npm install
@@ -21,6 +19,8 @@ Then install the Playwright browser binaries (only Chromium is required for the 
 ```bash
 npx playwright install chromium --with-deps
 ```
+
+The .NET SDK (v10.0 or later) is also required since the tests start the ASP.NET Core backend automatically.
 
 ## Running the Suite
 
@@ -44,9 +44,9 @@ npm run test:e2e:report
 
 ## How the Suite Starts the Application
 
-The Playwright configuration (`playwright.config.js`) uses the `webServer` option to start `node server.js` automatically before the tests begin and shut it down after they finish. You do not need to start the server manually when running the tests.
+The Playwright configuration (`playwright.config.js`) uses the `webServer` option to start the ASP.NET Core application automatically before the tests begin and shut it down after they finish. You do not need to start the server manually when running the tests.
 
-If the server is already running on port 3000 (e.g. you started `npm start` yourself), Playwright will reuse it when `CI` is not set.
+If the server is already running on port 5000 (e.g. you started `dotnet run --project src/ScrumPoker.Web` yourself), Playwright will reuse it when `CI` is not set.
 
 ## Scenario Coverage
 
@@ -64,23 +64,12 @@ The baseline suite covers the following migration-critical behaviors:
 | 8 | Remove a participant as observer and verify forced disconnect |
 | 9 | Consensus message appears only when more than one equal numeric vote |
 
-## Using the Suite as a Parity Gate During Migration
-
-1. Run `npm run test:e2e` against the **current Node.js implementation** and confirm all 9 scenarios pass. This establishes the green baseline.
-2. Implement the C# backend according to `CSHARP_BACKEND_MIGRATION_SPEC.md`.
-3. Point the suite at the new backend by either:
-   - updating the `webServer.command` in `playwright.config.js` to start the C# application, or
-   - starting the C# server manually and setting `baseURL` / `reuseExistingServer: true`.
-4. Run `npm run test:e2e` again. All 9 scenarios must still pass for the migration to be considered complete.
-
-No test logic should need to change between the two backend implementations as long as the HTML structure and user-visible behavior are preserved.
-
 ## Configuration
 
 `playwright.config.js` at the repository root controls:
 
 - `testDir` – location of test files (`./tests`)
-- `use.baseURL` – application base URL (default `http://localhost:3000`)
+- `use.baseURL` – application base URL (default `http://localhost:5000`)
 - `webServer` – automatic server start/stop around the test run
 - `workers: 1` – tests run serially to avoid shared-state conflicts between rooms
 
