@@ -47,9 +47,23 @@ function copyRoomLink() {
         }, 2000);
         return;
     }
+    const originalText = copyLinkBtn.textContent;
+
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        copyLinkBtn.textContent = 'Copy failed';
+        setTimeout(() => {
+            copyLinkBtn.textContent = originalText;
+        }, 2000);
+        return;
+    }
 
     navigator.clipboard.writeText(url).then(() => {
         copyLinkBtn.textContent = 'Copied!';
+        setTimeout(() => {
+            copyLinkBtn.textContent = originalText;
+        }, 2000);
+    }).catch(() => {
+        copyLinkBtn.textContent = 'Copy failed';
         setTimeout(() => {
             copyLinkBtn.textContent = originalText;
         }, 2000);
