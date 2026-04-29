@@ -14,4 +14,6 @@ public class RoomStore : IRoomStore
         _rooms.TryGetValue(roomId, out var room) ? room : null;
 
     public IReadOnlyList<Room> GetAll() => _rooms.Values.ToList();
+
+    public void Remove(string roomId) => _rooms.TryRemove(roomId, out _);
 }

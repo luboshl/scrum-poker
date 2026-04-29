@@ -183,6 +183,11 @@ public class RoomService : IRoomService
                 participant.Active = false;
                 room.Participants.RemoveAll(p => !p.Active);
             }
+
+            if (room.Participants.Count == 0)
+            {
+                _store.Remove(roomId);
+            }
         }
     }
 
@@ -212,6 +217,11 @@ public class RoomService : IRoomService
                 if (room.Participants.Count != before)
                 {
                     affectedRooms.Add(room.Id);
+                }
+
+                if (room.Participants.Count == 0)
+                {
+                    _store.Remove(room.Id);
                 }
             }
         }
