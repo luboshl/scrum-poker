@@ -1,4 +1,33 @@
 root = true
 
+[{*.csproj,*.slnx}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
 [*.cs]
-csharp_prefer_braces = true:warning
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Add missing cases to switch expression.
+dotnet_diagnostic.IDE0072.severity = error
+
+# Add missing cases to switch statement.
+dotnet_diagnostic.IDE0010.severity = error
+
+# use of curly braces { } to surround code blocks
+dotnet_diagnostic.IDE0011.severity = error
+csharp_prefer_braces = true
+
+# AwesomeAssertions.Analyzers diagnostics
+dotnet_diagnostic.AwesomeAssertions0801.severity = error
+dotnet_diagnostic.FAA0001.severity = error
+dotnet_diagnostic.FAA0002.severity = error
+dotnet_diagnostic.FAA0003.severity = error
+dotnet_diagnostic.FAA0004.severity = error
+

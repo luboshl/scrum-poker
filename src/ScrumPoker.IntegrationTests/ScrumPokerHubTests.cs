@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.SignalR.Client;
 using ScrumPoker.Application;
@@ -34,102 +35,114 @@ public class ScrumPokerHubTests : IClassFixture<WebApplicationFactory<Program>>,
     [Fact]
     public async Task JoinRoom_ReceivesJoinConfirmation()
     {
-        var tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        // Arrange
+        var confirmationSource = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _connection.On<object>("joinConfirmation", payload =>
         {
-            tcs.TrySetResult(payload);
+            confirmationSource.TrySetResult(payload);
         });
 
+        // Act
         await _connection.InvokeAsync("JoinRoom", "test-room", "Alice", false);
+        var confirmation = await confirmationSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var confirmation = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.NotNull(confirmation);
+        // Assert
+        confirmation.Should().NotBeNull();
     }
 
     [Fact]
     public async Task JoinRoom_ReceivesRoomUpdate()
     {
-        var tcs = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
+        // Arrange
+        var roomUpdateSource = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _connection.On<RoomStateDto>("roomUpdate", state =>
         {
-            tcs.TrySetResult(state);
+            roomUpdateSource.TrySetResult(state);
         });
 
+        // Act
         await _connection.InvokeAsync("JoinRoom", "room-update-test", "Bob", false);
+        var state = await roomUpdateSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var state = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.NotNull(state);
-        Assert.Single(state.Users);
-        Assert.Equal("Bob", state.Users[0].Name);
+        // Assert
+        state.Should().NotBeNull();
+        state.Users.Should().ContainSingle().Which.Name.Should().Be("Bob");
     }
 
     [Fact]
     public async Task Vote_AfterJoin_RoomUpdateContainsVote()
     {
-        // First join
-        var joinTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _connection.On<object>("joinConfirmation", _ => joinTcs.TrySetResult(true));
+        // Arrange
+        var joinConfirmationSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _connection.On<object>("joinConfirmation", _ => joinConfirmationSource.TrySetResult(true));
         await _connection.InvokeAsync("JoinRoom", "vote-test-room", "Charlie", false);
-        await joinTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await joinConfirmationSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        // Then vote
-        var voteTcs = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var roomUpdateSource = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
         _connection.On<RoomStateDto>("roomUpdate", state =>
         {
             if (state.Users.Any(u => u.Vote == "5"))
             {
-                voteTcs.TrySetResult(state);
+                roomUpdateSource.TrySetResult(state);
             }
         });
 
+        // Act
         await _connection.InvokeAsync("Vote", "5");
+        var state = await roomUpdateSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var state = await voteTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.Equal("5", state.Users.First(u => u.Name == "Charlie").Vote);
+        // Assert
+        state.Users.Should().ContainSingle(user => user.Name == "Charlie").Which.Vote.Should().Be("5");
     }
 
     [Fact]
     public async Task EndVoting_SetsVotingEnded()
     {
-        var joinTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _connection.On<object>("joinConfirmation", _ => joinTcs.TrySetResult(true));
+        // Arrange
+        var joinConfirmationSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _connection.On<object>("joinConfirmation", _ => joinConfirmationSource.TrySetResult(true));
         await _connection.InvokeAsync("JoinRoom", "end-voting-room", "Dave", false);
-        await joinTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await joinConfirmationSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var endTcs = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var roomUpdateSource = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
         _connection.On<RoomStateDto>("roomUpdate", state =>
         {
             if (state.VotingEnded)
             {
-                endTcs.TrySetResult(state);
+                roomUpdateSource.TrySetResult(state);
             }
         });
 
+        // Act
         await _connection.InvokeAsync("EndVoting");
+        var state = await roomUpdateSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var state = await endTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.True(state.VotingEnded);
+        // Assert
+        state.VotingEnded.Should().BeTrue();
     }
 
     [Fact]
     public async Task ResetVoting_ClearsVotes()
     {
-        var joinTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _connection.On<object>("joinConfirmation", _ => joinTcs.TrySetResult(true));
+        // Arrange
+        var joinConfirmationSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _connection.On<object>("joinConfirmation", _ => joinConfirmationSource.TrySetResult(true));
         await _connection.InvokeAsync("JoinRoom", "reset-voting-room", "Eve", false);
-        await joinTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await joinConfirmationSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         await _connection.InvokeAsync("Vote", "13");
         await _connection.InvokeAsync("EndVoting");
 
-        var resetTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _connection.On("resetVoting", () => resetTcs.TrySetResult(true));
+        var resetSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _connection.On("resetVoting", () => resetSource.TrySetResult(true));
 
+        // Act
         await _connection.InvokeAsync("ResetVoting");
+        var receivedReset = await resetSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var receivedReset = await resetTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.True(receivedReset);
+        // Assert
+        receivedReset.Should().BeTrue();
     }
 }

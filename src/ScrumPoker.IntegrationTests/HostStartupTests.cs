@@ -1,3 +1,5 @@
+using System.Net;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
@@ -19,20 +21,26 @@ public class HostStartupTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task HealthEndpoint_ReturnsHealthy()
     {
+        // Arrange
         var client = _factory.CreateClient();
 
+        // Act
         var response = await client.GetAsync("/health");
 
-        response.EnsureSuccessStatusCode();
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
     public async Task AliveEndpoint_ReturnsHealthy()
     {
+        // Arrange
         var client = _factory.CreateClient();
 
+        // Act
         var response = await client.GetAsync("/alive");
 
-        response.EnsureSuccessStatusCode();
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }
