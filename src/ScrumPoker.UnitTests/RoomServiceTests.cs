@@ -49,6 +49,7 @@ public class RoomServiceTests
         svc.JoinRoom("room1", "conn1", "Alice", false);
         var result = svc.JoinRoom("room1", "conn1", "Alice", false);
 
+        Assert.Equal("Alice", result.ResolvedName);
         // Should not create a second participant
         Assert.Single(result.RoomState.Users);
     }

@@ -20,9 +20,9 @@ public class RoomService : IRoomService
         var room = _store.GetOrCreate(roomId);
         lock (LockFor(roomId))
         {
-            var uniqueName = ResolveName(room, name);
-
             var existing = room.Participants.FirstOrDefault(p => p.ConnectionId == connectionId);
+            var uniqueName = ResolveName(room, name, connectionId);
+
             if (existing != null)
             {
                 existing.Name = uniqueName;
@@ -39,11 +39,14 @@ public class RoomService : IRoomService
         }
     }
 
-    private static string ResolveName(Room room, string requestedName)
+    private static string ResolveName(Room room, string requestedName, string? ignoredConnectionId = null)
     {
         var uniqueName = requestedName;
         var counter = 2;
-        while (room.Participants.Any(p => p.Name == uniqueName && p.Active))
+        while (room.Participants.Any(p =>
+            p.ConnectionId != ignoredConnectionId &&
+            p.Name == uniqueName &&
+            p.Active))
         {
             uniqueName = $"{requestedName} ({counter++})";
         }
