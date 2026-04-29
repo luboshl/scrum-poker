@@ -264,8 +264,17 @@ public class RoomServiceTests
         var affected = svc.CleanupInactiveParticipants(TimeSpan.Zero);
 
         Assert.Contains("room1", affected);
-        var state = svc.GetRoomState("room1")!;
-        Assert.Empty(state.Users);
+    }
+
+    [Fact]
+    public void CleanupInactiveParticipants_EmptiesRoom_RemovesRoomFromStore()
+    {
+        var svc = CreateService();
+        svc.JoinRoom("room1", "conn1", "Alice", false);
+
+        svc.CleanupInactiveParticipants(TimeSpan.Zero);
+
+        Assert.Null(svc.GetRoomState("room1"));
     }
 
     [Fact]
@@ -277,6 +286,16 @@ public class RoomServiceTests
         var affected = svc.CleanupInactiveParticipants(TimeSpan.FromHours(1));
 
         Assert.Empty(affected);
+    }
+
+    [Fact]
+    public void Disconnect_LastParticipant_RemovesRoomFromStore()
+    {
+        var svc = CreateService();
+        svc.JoinRoom("room1", "conn1", "Alice", false);
+        svc.Disconnect("room1", "conn1");
+
+        Assert.Null(svc.GetRoomState("room1"));
     }
 
     // ── GetRoomState ──────────────────────────────────────────────────────────

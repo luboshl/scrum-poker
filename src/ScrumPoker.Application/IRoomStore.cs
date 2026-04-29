@@ -7,4 +7,5 @@ public interface IRoomStore
     Room GetOrCreate(string roomId);
     Room? Get(string roomId);
     IReadOnlyList<Room> GetAll();
+    void Remove(string roomId);
 }
