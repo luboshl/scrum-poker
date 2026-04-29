@@ -102,7 +102,10 @@ public class ScrumPokerHubTests : IClassFixture<WebApplicationFactory<Program>>,
         var endTcs = new TaskCompletionSource<RoomStateDto>(TaskCreationOptions.RunContinuationsAsynchronously);
         _connection.On<RoomStateDto>("roomUpdate", state =>
         {
-            if (state.VotingEnded) endTcs.TrySetResult(state);
+            if (state.VotingEnded)
+            {
+                endTcs.TrySetResult(state);
+            }
         });
 
         await _connection.InvokeAsync("EndVoting");
