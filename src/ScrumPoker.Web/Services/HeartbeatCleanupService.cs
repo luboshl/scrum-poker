@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using ScrumPoker.Application;
 using ScrumPoker.Web.Hubs;
 
@@ -9,17 +10,20 @@ public class HeartbeatCleanupService : BackgroundService
     private readonly IRoomService _roomService;
     private readonly IHubContext<ScrumPokerHub> _hubContext;
     private readonly ILogger<HeartbeatCleanupService> _logger;
+    private readonly IOptions<RoomCleanupOptions> _options;
     private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan InactivityThreshold = TimeSpan.FromMinutes(10);
 
     public HeartbeatCleanupService(
         IRoomService roomService,
         IHubContext<ScrumPokerHub> hubContext,
-        ILogger<HeartbeatCleanupService> logger)
+        ILogger<HeartbeatCleanupService> logger,
+        IOptions<RoomCleanupOptions> options)
     {
         _roomService = roomService;
         _hubContext = hubContext;
         _logger = logger;
+        _options = options;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -38,6 +42,8 @@ public class HeartbeatCleanupService : BackgroundService
                     }
                     _logger.LogInformation("Cleaned up inactive participants in room {RoomId}", roomId);
                 }
+
+                _roomService.CleanupEmptyRooms(_options.Value.EmptyRoomRetention);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
